@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/LinkedList.sln
+/LinkedList/Program.cs
+/LinkedList/LinkedList.csproj
