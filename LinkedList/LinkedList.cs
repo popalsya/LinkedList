@@ -13,7 +13,9 @@ namespace LinkedList
             public Node Next { get; set; }
         }
 
-        private Node _head;
+        private Node _first;
+
+        private Node _last;
 
         private int _count;
 
@@ -21,12 +23,17 @@ namespace LinkedList
 
         private bool _isFixesSize;
 
-        public bool IsReadOnly { get { return _isReadOnly; } }
+        public Type First => _first == null ? default : _first.Value;
 
-        public bool IsFixedSize { get { return _isFixesSize; } }
+        public Type Last => _last == null ? default : _last.Value;
 
-        public int Count { get { return _count; } }
-        public bool IsEmpty { get { return _count == 0; } }
+        public bool IsReadOnly => _isReadOnly;
+
+        public bool IsFixedSize => _isFixesSize;
+
+        public int Count => _count;
+
+        public bool IsEmpty => _count == 0;
 
         public LinkedList(bool isReadOnly = false)
         {
@@ -41,14 +48,16 @@ namespace LinkedList
                 return;
             }
 
-            _head = new Node();
-            var element = _head;
+            _first = new Node();
+            var element = _first;
             for (int index = 0; index < size; index++)
             {
                 element.Next = new Node();
                 element = element.Next;
                 _count++;
             }
+
+            _last = element;
         }
 
         public LinkedList(List<Type> list, bool isReadOnly = false) : this(isReadOnly: isReadOnly)
@@ -64,15 +73,16 @@ namespace LinkedList
             }
 
             var newElement = new Node() { Value = value };
+            _last = newElement;
 
             if (IsEmpty)
             {
-                _head = newElement;
+                _first = newElement;
                 _count++;
                 return;
             }
 
-            GetNode(Count - 1).Next = newElement;
+            GetNode(_count - 1).Next = newElement;
             _count++;
             return;
         }
@@ -86,7 +96,7 @@ namespace LinkedList
 
             if (index == 0)
             {
-                _head = new Node() { Value = value, Next = _head };
+                _first = new Node() { Value = value, Next = _first };
             }
             else
             {
@@ -106,12 +116,17 @@ namespace LinkedList
 
             if (index == 0)
             {
-                _head = _head.Next;
+                _first = _first.Next;
             }
             else
             {
                 var node = GetNode(index - 1);
                 var nextNode = node.Next != null ? node.Next.Next : null;
+
+                if (index == _count - 1)
+                {
+                    _last = node;
+                }
 
                 node.Next = nextNode;
             }
@@ -158,7 +173,7 @@ namespace LinkedList
                 return -1;
             }
 
-            var element = _head;
+            var element = _first;
             var index = 0;
             while (element != null)
             {
@@ -181,7 +196,7 @@ namespace LinkedList
 
         public void Clear()
         {
-            _head = null;
+            _first = _last = null;
             _count = 0;
             _isFixesSize = false;
             _isReadOnly = false;
@@ -190,7 +205,7 @@ namespace LinkedList
         public List<Type> ToArray()
         {
             var array = new List<Type>();
-            var element = _head;
+            var element = _first;
 
             while (element != null)
             {
@@ -215,7 +230,7 @@ namespace LinkedList
                 return;
             }
 
-            var element = _head;
+            var element = _first;
             while (element != null)
             {
                 callback(element.Value);
@@ -238,7 +253,7 @@ namespace LinkedList
                 throw new ArgumentOutOfRangeException();
             }
 
-            var element = _head;
+            var element = _first;
             for (int i = 0; i < index; i++)
             {
                 element = element.Next;
@@ -254,7 +269,7 @@ namespace LinkedList
 
         IEnumerator<Type> IEnumerable<Type>.GetEnumerator()
         {
-            var element = _head;
+            var element = _first;
             while (element != null)
             {
                 yield return element.Value;
